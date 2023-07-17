@@ -9,32 +9,31 @@ public class ClienteTarefas {
 
 	public static void main(String[] args) throws Exception {
 		Socket socket = new Socket("localhost", 12345);
-		System.out.println("[ *** CONEXÃO ESTABELECIDA COM SUCESSO *** ]");
-		
-		String clientName = Integer.toOctalString(socket.getLocalPort()).substring(4);
+		System.out.println("[CLIENTE][ *** CONEXÃO ESTABELECIDA COM SUCESSO *** ]");		
 		
 		Thread threadEnviarComando = new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
 				try {
-					System.out.println("*** Enviando comandos ao servidor ***");
+					System.out.println("[CLIENTE] *** Enviando comandos ao servidor ***");
 					PrintStream saida = new PrintStream(socket.getOutputStream());
-//					saida.println("cliente : " + clientName);
 					
-					System.out.print("> ");
+					System.out.print("[CLIENTE] > ");
 					Scanner teclado = new Scanner(System.in);	
 
 					while(teclado.hasNextLine()) {
 						String comando = teclado.nextLine();
 						
 						if (comando.trim().equals("")) {
+							System.out.println("[CLIENTE] Desconectando. Aguarde.");
 							break;
 						}
 						
 						saida.println(comando);
-						System.out.print("> ");
-					}
+					}					
+					
+					System.out.println("[CLIENTE] *** Cliente desconectando ***");
 					
 					saida.close();
 					teclado.close();
@@ -48,7 +47,7 @@ public class ClienteTarefas {
 			
 			@Override
 			public void run() {
-				System.out.println("*** Recebendo dados do servidor ***");
+				System.out.println("[CLIENTE] *** Recebendo dados do servidor ***");
 				Scanner respostaServidor;
 				try {
 					respostaServidor = new Scanner(socket.getInputStream());
@@ -56,6 +55,8 @@ public class ClienteTarefas {
 					while(respostaServidor.hasNextLine()) {
 						String resposta = respostaServidor.nextLine();
 						System.out.println(resposta);
+						
+						System.out.print("[CLIENTE] > ");
 					}
 					
 					respostaServidor.close();
@@ -71,10 +72,10 @@ public class ClienteTarefas {
 		
 		threadEnviarComando.join();
 		
-		System.out.println("*** Fechando socket do cliente ***");
-		socket.close();
+		System.out.println("[CLIENTE] *** Fechando socket do cliente ***");		
+		System.out.println("[CLIENTE][ *** CONEXÃO ENCERRADA *** ]");
 		
-		System.out.println("[ *** CONEXÃO ENCERRADA *** ]");
+		socket.close();
 	}
 
 }
