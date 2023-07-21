@@ -31,6 +31,21 @@ public class ClienteTarefas {
 						}
 						
 						saida.println(comando);
+						
+						long inicio = System.currentTimeMillis();
+						
+						do {
+							try {
+								Thread.sleep(200);
+								System.out.print(".");
+							} catch (InterruptedException e) {
+								saida.close();
+								teclado.close();
+								throw new RuntimeException();			
+							}
+						} while(System.currentTimeMillis() < inicio + 19000);
+						
+						System.out.println();
 					}					
 					
 					System.out.println("[CLIENTE] *** Cliente desconectando ***");
@@ -77,5 +92,5 @@ public class ClienteTarefas {
 		
 		socket.close();
 	}
-
+	
 }
