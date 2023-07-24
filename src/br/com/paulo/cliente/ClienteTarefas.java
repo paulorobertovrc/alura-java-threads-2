@@ -72,13 +72,12 @@ public class ClienteTarefas {
 						System.out.println(resposta);
 						
 						System.out.print("[CLIENTE] > ");
-					}
+					}					
 					
 					respostaServidor.close();
-				} catch (IOException e) {
+				} catch (Exception e) {
 					throw new RuntimeException(e);
-				}
-				
+				}				
 			}
 		});
 		

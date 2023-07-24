@@ -28,7 +28,7 @@ public class ServidorTarefas {
 		this.server = new ServerSocket(12345);
 //		this.threadPool = Executors.newCachedThreadPool();
 		ServidorTarefas.usedThreads = 0;
-		this.threadPool = Executors.newFixedThreadPool(poolSize);
+		this.threadPool = Executors.newFixedThreadPool(poolSize, new ThreadFactory());
 		this.isRunning = new AtomicBoolean(true);
 		
 		this.clientesConectados = 0;

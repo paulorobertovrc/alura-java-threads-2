@@ -52,6 +52,7 @@ public class DistribuirTarefas implements Runnable {
 				switch (comandoCliente.toLowerCase()) {
 				case "c1":
 					saidaCliente.println("[SERVIDOR] Confirmação de comando c1 recebido");
+					
 					if (!server.isFull()) {
 						ComandoC1 c1 = new ComandoC1(saidaCliente);
 						System.out.println(ServidorTarefas.currentDateTime() + "Executando comando c1 a pedido do cliente " + client.getNome());
