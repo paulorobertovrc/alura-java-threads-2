@@ -1,10 +1,12 @@
 package comandos;
 
 import java.io.PrintStream;
+import java.util.Random;
+import java.util.concurrent.Callable;
 
 import br.com.paulo.servidor.ServidorTarefas;
 
-public class ComandoC2 implements Runnable {
+public class ComandoC2 implements Callable<Integer> {
 	
 	private PrintStream saida;
 
@@ -13,21 +15,18 @@ public class ComandoC2 implements Runnable {
 	}
 
 	@Override
-	public void run() {
+	public Integer call() throws Exception {
 		saida.println("[SERVIDOR] Executando comando c2");
 		
-		try {
-			ServidorTarefas.consumeThread();
-			Thread.sleep(20000);
-			
-		} catch(InterruptedException e) {
-			throw new RuntimeException(e);
-		}
+		ServidorTarefas.consumeThread();
+		Thread.sleep(20000);
 		
-		throw new RuntimeException("Exceção lançada pelo comando c2");
+		int numeroAleatorio = new Random().nextInt(101);
 		
-//		saida.println("[SERVIDOR] Comando c1 executado com sucesso");
-//		ServidorTarefas.releaseThread();
+		saida.println("[SERVIDOR] Comando c2 executado com sucesso");
+		ServidorTarefas.releaseThread();
+
+		return numeroAleatorio;
 	}
 
 }

@@ -4,10 +4,12 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import br.com.paulo.cliente.Cliente;
 import comandos.ComandoC1;
 import comandos.ComandoC2;
+import comandos.ComandoC2AcessoBD;
 import comandos.Comandos;
 
 public class DistribuirTarefas implements Runnable {
@@ -56,7 +58,7 @@ public class DistribuirTarefas implements Runnable {
 					if (!server.isFull()) {
 						ComandoC1 c1 = new ComandoC1(saidaCliente);
 						System.out.println(ServidorTarefas.currentDateTime() + "Executando comando c1 a pedido do cliente " + client.getNome());
-						threadPool.execute(c1);
+						this.threadPool.execute(c1);
 					} else {
 						saidaCliente.println("[SERVIDOR] Não foi possível executar o comando porque a capacidade máxima do servidor já foi atingida");
 					}
@@ -64,8 +66,23 @@ public class DistribuirTarefas implements Runnable {
 					break;
 				case "c2":
 					saidaCliente.println("[SERVIDOR] Confirmação de comando c2 recebido");
-					ComandoC2 c2 = new ComandoC2(saidaCliente);
-					threadPool.execute(c2);
+					
+					if (!server.isFull()) {
+						System.out.println(ServidorTarefas.currentDateTime() + "Executando comando c2 a pedido do cliente " + client.getNome());
+						
+						ComandoC2 c2 = new ComandoC2(saidaCliente);
+						Future<Integer> futureC2 = this.threadPool.submit(c2);
+
+						ComandoC2AcessoBD c2Bd = new ComandoC2AcessoBD(saidaCliente);
+						c2Bd.setNumero(futureC2);
+						Future<String> futureC2Bd = this.threadPool.submit(c2Bd);
+						
+						this.threadPool.submit(new JuntarResultados(futureC2, futureC2Bd, saidaCliente));
+						
+					} else {
+						saidaCliente.println("[SERVIDOR] Não foi possível executar o comando porque a capacidade máxima do servidor já foi atingida");
+					}
+					
 					break;
 				case "":
 					break;
