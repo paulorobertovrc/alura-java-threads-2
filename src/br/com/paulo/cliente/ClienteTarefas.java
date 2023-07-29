@@ -36,7 +36,7 @@ public class ClienteTarefas {
 						
 						do {
 							try {
-								Thread.sleep(200);
+								Thread.sleep(300);
 								System.out.print(".");
 							} catch (InterruptedException e) {
 								saida.close();

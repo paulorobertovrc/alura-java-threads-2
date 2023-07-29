@@ -1,4 +1,4 @@
-package comandos;
+package br.com.paulo.comandos;
 
 import java.io.PrintStream;
 import java.util.concurrent.Callable;

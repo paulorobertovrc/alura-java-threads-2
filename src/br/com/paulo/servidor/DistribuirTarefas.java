@@ -3,14 +3,17 @@ package br.com.paulo.servidor;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import br.com.paulo.cliente.Cliente;
-import comandos.ComandoC1;
-import comandos.ComandoC2;
-import comandos.ComandoC2AcessoBD;
-import comandos.Comandos;
+import br.com.paulo.comandos.Comando;
+import br.com.paulo.comandos.ComandoC1;
+import br.com.paulo.comandos.ComandoC2;
+import br.com.paulo.comandos.ComandoC2AcessoBD;
+import br.com.paulo.comandos.ComandoC3;
+import br.com.paulo.comandos.Comandos;
 
 public class DistribuirTarefas implements Runnable {
 
@@ -18,12 +21,16 @@ public class DistribuirTarefas implements Runnable {
 	private Cliente client;
 	private ServidorTarefas server;
 	private ExecutorService threadPool;
+	private BlockingQueue<Comando> filaComandos;
 
 	public DistribuirTarefas(Socket socket, ServidorTarefas server) {
 		this.socket = socket;
 		this.server = server;
 		this.client = server.getNovoCliente();
 		this.threadPool = server.getThreadPool();
+		this.filaComandos = server.getFilaComandos();
+		
+		this.inicializarConsumidores();
 	}
 
 	@Override
@@ -84,6 +91,21 @@ public class DistribuirTarefas implements Runnable {
 					}
 					
 					break;
+				case "c3":{
+					saidaCliente.println("[SERVIDOR] Confirmação de comando c3 recebido");
+					
+					if (!server.isFull()) {
+						ComandoC3 c3 = new ComandoC3(saidaCliente, server.getFilaComandos());
+						filaComandos.put(c3);
+						System.out.println(ServidorTarefas.currentDateTime() + "Comando c3 adicionado à fila a pedido do cliente " + client.getNome());
+						saidaCliente.println("Comando c3 adicionado à fila");
+						this.threadPool.execute(c3);
+					} else {
+						saidaCliente.println("[SERVIDOR] Não foi possível executar o comando porque a capacidade máxima do servidor já foi atingida");
+					}
+					
+					break;
+				}
 				case "":
 					break;
 				case "fim":
@@ -117,6 +139,13 @@ public class DistribuirTarefas implements Runnable {
 		}
 		
 		return false;
+	}
+	
+	private void inicializarConsumidores() {
+		for (int i = 0; i < server.getTamanhoFilaComandos(); i++) {
+			ConsumidorTarefa task = new ConsumidorTarefa(filaComandos);
+			this.threadPool.execute(task);
+		}
 	}
 
 }
